@@ -19,18 +19,12 @@ int main()
 
     std::vector<char> data;
     std::copy(line.begin(), line.end(), std::back_inserter(data));
-    
+    std::set<std::pair<int, int>> visitedHouses;
 
     struct Santa
     {
         int x = 0;
         int y = 0;
-        std::set<std::pair<int, int>> visitedHouses;
-        
-        Santa()
-        {
-            visitedHouses.insert(std::make_pair(x, y));
-        }
 
         std::pair<int, int> move(char direction)
         {
@@ -55,22 +49,20 @@ int main()
     } santas, roboSantas;
 
     bool santasTurn = true;
+    visitedHouses.insert(std::make_pair(0, 0));
     for (int i = 0; i < data.size(); i++)
     {
         if (santasTurn)
         {
-            santas.visitedHouses.insert(santas.move(data[i]));
+            visitedHouses.insert(santas.move(data[i]));
         }
         else
         {
-            roboSantas.visitedHouses.insert(roboSantas.move(data[i]));
+            visitedHouses.insert(roboSantas.move(data[i]));
         }
-       santasTurn = !santasTurn;
+        santasTurn = !santasTurn;
     }
-
-    std::set<std::pair<int, int>> houses (santas.visitedHouses.begin(), santas.visitedHouses.end());
-    houses.insert(roboSantas.visitedHouses.begin(), roboSantas.visitedHouses.end());
-    std::cout << "Number of houses visited: " << houses.size() << std::endl;
+    std::cout << "Number of houses visited: " << visitedHouses.size() << std::endl;
 
     return EXIT_SUCCESS;
 }
