@@ -1,16 +1,14 @@
-#include <iostream>
-#include <sstream>
-#include <vector>
-#include <map>
-#include <climits>
 #include <algorithm>
-#include <cassert>
 #include <iostream>
-#include <set>
-#include <string>
+#include <climits>
 #include <fstream>
-#include <iostream>
+#include <sstream>
+#include <cassert>
 #include <vector>
+#include <string>
+#include <map>
+#include <set>
+
 
 typedef int lighttype;
 //typedef bool lighttype;
