@@ -1,79 +1,82 @@
-#include <algorithm>
-#include <fstream>
 #include <iostream>
-#include <sstream>
-#include <vector>
+#include <stdio.h>
+#include <string.h>
+#define N 1000
 
-enum Status { ON, OFF, TOGGLE };
-struct Orders {
-    Status status;
-    int x1 = -1, y1 = -1, x2 = -1, y2 = -1;
-} orders;
+using namespace std;
 
-void SplitWords(std::string line, Orders &orders) {
-    std::istringstream ss(line);
-    std::string word;
-    while (ss >> word) {
-        int index = word.find(",");
-        if (index != std::string::npos) {
-            int x = std::stoi(word.substr(0, index));
-            int y = std::stoi(word.substr(index + 1, word.size() - index));
+int a[1000][1000];
+int main()
+{
 
-            if (orders.x1 == -1) {
-                orders.x1 = x;
-                orders.y1 = y;
-            } else {
-                orders.x2 = x;
-                orders.y2 = y;
-            }
-        }
-    }
-}
+    FILE *f;
+    char action[10];
+    char state[6];
+    int x1;
+    int x2;
+    int y1;
+    int y2;
+    int count;
+    int cs;
+    int on;
+    int off;
+    int toogle;
 
-int main() {
-    std::string filename = "6.txt";
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        std::cout << "Could not open the file - '" << filename << "'" << std::endl;
-        return EXIT_FAILURE;
-    }
+    on = 0;
+    off = 0;
+    toogle = 0;
 
-    struct Orders orders;
-    std::string line = "";
-    std::vector<Orders> allOrders;
-    while (std::getline(file, line, '\n')) {
-        if (line.find("toggle") != std::string::npos) {
-            orders.status = TOGGLE;
-            SplitWords(line, orders);
-        } else if (line.find("off") != std::string::npos) {
-            orders.status = OFF;
-            SplitWords(line, orders);
-        } else {
-            orders.status = ON;
-            SplitWords(line, orders);
-        }
-        allOrders.push_back(orders);
-    }
+    count = 0;
+    f = fopen("6.txt", "r+");
 
-    struct Light{
-        Status status = OFF;
-    };
+    while(fscanf(f, "%s %d,%d through %d,%d", state, &x1, &y1, &x2, &y2) != -1) {
+        cout << state << endl;
 
-    Light allLights[0][0];
-    for (auto order : allOrders) {
-        for (int j = order.x1; j < order.x2; j++) {
-            for (int h = order.y1; h < order.y2; h++) {
-                if (order.status == TOGGLE) {
-                    allLights[j][h].status = ( allLights[j][h].status == ON) ? OFF : ON;
-                }else if (order.status == ON) {
-                    allLights[j][h].status = ON;
-                } else if (order.status == OFF) {
-                    allLights[j][h].status = OFF;
+        if(!strcmp(state,"on"))
+            cs = 1;
+        else
+            if(!strcmp(state,"off"))
+                cs = 2;
+            else
+                cs = 3;
+
+
+        switch(cs) {
+            case 1:
+                on++;
+                for (int i = x1; i <= x2; i++) {
+                    for (int j = y1; j <= y2; j++) {
+                        a[i][j]++;
+                    }
                 }
-            }
+                break;
+
+            case 2:
+                off++;
+                for (int i = x1; i <= x2; i++) {
+                    for (int j = y1; j <= y2; j++) {
+                        a[i][j] = max(0, --a[i][j]);
+                    }
+                }
+                break;
+
+            case 3:
+                toogle++;
+                for (int i = x1; i <= x2; i++) {
+                    for (int j = y1; j <= y2; j++) {
+                        a[i][j] += 2;
+                    }
+                }
+                break;
+
         }
     }
-    // std::cout << 2 * (lightsOnX + lightsOnY) << std::endl;
 
-    return EXIT_SUCCESS;
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            count += a[i][j];
+        }
+    }
+
+    cout << count << endl;
 }
