@@ -1,82 +1,92 @@
 #include <iostream>
-#include <stdio.h>
-#include <string.h>
-#define N 1000
+#include <sstream>
+#include <vector>
+#include <map>
+#include <climits>
+#include <algorithm>
+#include <cassert>
+#include <iostream>
+#include <set>
+#include <string>
+#include <fstream>
+#include <iostream>
+#include <vector>
 
-using namespace std;
+typedef int lighttype;
+//typedef bool lighttype;
 
-int a[1000][1000];
-int main()
-{
+void toggle(int x1, int y1, int x2, int y2, std::vector<std::vector<lighttype> >& lights) {
+    for (int i=x1; i<=x2; ++i) for (int j=y1; j<=y2; ++j) {
+        //lights[i][j] = !lights[i][j];
+        lights[i][j]+=2;
+    }
+}
 
-    FILE *f;
-    char action[10];
-    char state[6];
-    int x1;
-    int x2;
-    int y1;
-    int y2;
-    int count;
-    int cs;
-    int on;
-    int off;
-    int toogle;
+void turn_on(int x1, int y1, int x2, int y2, std::vector<std::vector<lighttype> >& lights) {
+    for (int i=x1; i<=x2; ++i) for (int j=y1; j<=y2; ++j) {
+        //lights[i][j] = true;
+        lights[i][j]+=1;
+    }
+}
 
-    on = 0;
-    off = 0;
-    toogle = 0;
+void turn_off(int x1, int y1, int x2, int y2, std::vector<std::vector<lighttype> >& lights) {
+    for (int i=x1; i<=x2; ++i) for (int j=y1; j<=y2; ++j) {
+        //lights[i][j] = false;
+        lights[i][j]-=1;
+        if (lights[i][j]<0) lights[i][j]=0;
+    }
+}
 
-    count = 0;
-    f = fopen("6.txt", "r+");
+int main() {
 
-    while(fscanf(f, "%s %d,%d through %d,%d", state, &x1, &y1, &x2, &y2) != -1) {
-        cout << state << endl;
+    std::vector< std::vector<lighttype> > lights;
+    for (int i=0;i<1000;++i) {
+        std::vector<lighttype> v;
+        for (int j=0;j<1000;++j) v.push_back((lighttype)0);
+        lights.push_back(v);
+    }
 
-        if(!strcmp(state,"on"))
-            cs = 1;
-        else
-            if(!strcmp(state,"off"))
-                cs = 2;
-            else
-                cs = 3;
+    std::string filename = "6.txt";
+        std::ifstream file(filename);
+        if (!file.is_open()) {
+            std::cout << "Could not open the file - '" << filename << "'" << std::endl;
+            return EXIT_FAILURE;
+        }
 
+    std::string line;
+    while (std::getline(file, line, '\n')) {
+        std::istringstream ss(line);
 
-        switch(cs) {
-            case 1:
-                on++;
-                for (int i = x1; i <= x2; i++) {
-                    for (int j = y1; j <= y2; j++) {
-                        a[i][j]++;
-                    }
-                }
-                break;
+        std::string cmd;
+        ss >> cmd;
+        if (cmd.compare("turn")==0)
+            ss >> cmd;
 
-            case 2:
-                off++;
-                for (int i = x1; i <= x2; i++) {
-                    for (int j = y1; j <= y2; j++) {
-                        a[i][j] = max(0, --a[i][j]);
-                    }
-                }
-                break;
+        int x1, x2, y1, y2;
+        std::string tmp1, tmp2, tmp3;
+        ss >> tmp1 >> tmp2 >> tmp3;
 
-            case 3:
-                toogle++;
-                for (int i = x1; i <= x2; i++) {
-                    for (int j = y1; j <= y2; j++) {
-                        a[i][j] += 2;
-                    }
-                }
-                break;
+        std::istringstream cs1(tmp1);
+        std::istringstream cs2(tmp3);
+        std::string each;
+        getline(cs1,each,','); x1 = std::stoi(each);
+        getline(cs1,each,','); y1 = std::stoi(each);
+        getline(cs2,each,','); x2 = std::stoi(each);
+        getline(cs2,each,','); y2 = std::stoi(each);
 
+        if (cmd.compare("toggle")==0) toggle(x1,y1,x2,y2,lights);
+        if (cmd.compare("on")==0)     turn_on(x1,y1,x2,y2,lights);
+        if (cmd.compare("off")==0)    turn_off(x1,y1,x2,y2,lights);
+    }
+
+    int counter = 0;
+    for (const auto &l1: lights) {
+        for (auto l2: l1) {
+            //if (l2) ++counter;
+            counter += l2;
         }
     }
 
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < N; j++) {
-            count += a[i][j];
-        }
-    }
-
-    cout << count << endl;
+    //std::cout << "Part 1: " << counter << std::endl;
+    std::cout << "Part 2: " << counter << std::endl;
 }
